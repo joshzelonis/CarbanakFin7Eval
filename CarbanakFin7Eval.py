@@ -18,7 +18,7 @@ class Carbanak_FIN7Eval():
 
 		self._obj = json.loads(data)
 		self._adv = None
-		self._df = pd.DataFrame(columns=('Substep', 'Criteria', 'Tactic', 'TechniqueId', 'TechniqueName', 'SubtechniqueId', 'SubtechniqueName', 'Detection', 'Modifiers', 'PowerShell', 'Indicator', 'IndicatorName'))
+		self._df = pd.DataFrame(columns=('Substep', 'Criteria', 'Tactic', 'TechniqueId', 'TechniqueName', 'SubtechniqueId', 'SubtechniqueName', 'Detection', 'Modifiers', 'Indicator', 'IndicatorName'))
 
 
 	def getDetection(self, detections):
@@ -41,7 +41,7 @@ class Carbanak_FIN7Eval():
 
 	# append detection info for the substep to dataframe
 	def appendSubstep(self, substep):
-		obj = { 'Substep':None, 'Criteria':None, 'Tactic':None, 'TechniqueId':None, 'TechniqueName':None, 'SubtechniqueId':None, 'SubtechniqueName':None, 'Detection':None, 'Modifiers':None, 'Powershell':None, 'Indicator':None, 'IndicatorName':None}
+		obj = { 'Substep':None, 'Criteria':None, 'Tactic':None, 'TechniqueId':None, 'TechniqueName':None, 'SubtechniqueId':None, 'SubtechniqueName':None, 'Detection':None, 'Modifiers':None, 'Indicator':None, 'IndicatorName':None}
 		obj['Substep'] = substep['Substep']
 		obj['Criteria'] = substep['Criteria']
 		obj['Tactic'] = substep['Tactic']['Tactic_Name']
@@ -51,7 +51,7 @@ class Carbanak_FIN7Eval():
 		obj['SubtechniqueName'] = '' if not len(substep['Subtechnique']['Subtechnique_Name']) else substep['Subtechnique']['Subtechnique_Name'].split(': ')[1]
 
 		(obj['Detection'], obj['Modifiers'], obj['Indicator'], obj['IndicatorName']) = self.getDetection(substep['Detections'])
-		obj['Powershell'] = True if 'powershell' in obj['Criteria'].lower() else False
+
 		self._df = self._df.append(obj, ignore_index=True)
 
 
@@ -94,7 +94,7 @@ def scoreVendor(obj, strict_mitre=False):
 	substeps = len(obj.index) - na
 	visibility = substeps - misses
 	techniques = counts['Technique']
-	analytics = techniques / visibility if not strict_mitre else (techniques + Tactic + General)/substeps
+	analytics = techniques / visibility if not strict_mitre else (techniques + tactic + general)/substeps
 	return (visibility/substeps, analytics)
 
 
@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
 	# Write out individual vendor tabs
 	for vendor in dfs.keys():
-		dfs[vendor].to_excel(writer, sheet_name=vendor, index=False, columns=['Substep', 'Criteria', 'Tactic', 'TechniqueId', 'TechniqueName', 'SubtechniqueId', 'SubtechniqueName', 'Detection', 'Modifiers', 'PowerShell', 'Indicator', 'IndicatorName'])
+		dfs[vendor].to_excel(writer, sheet_name=vendor, index=False, columns=['Substep', 'Criteria', 'Tactic', 'TechniqueId', 'TechniqueName', 'SubtechniqueId', 'SubtechniqueName', 'Detection', 'Modifiers', 'Indicator', 'IndicatorName'])
 	writer.save()
 
 	print('%s has been written.' % fname)
