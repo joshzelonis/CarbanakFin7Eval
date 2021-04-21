@@ -147,13 +147,13 @@ if __name__ == '__main__':
 	results = pd.DataFrame(columns=['vendor', 	\
                             		'visibility',	\
                             		'analytics',	\
-					'protections',	\
+					'protection',	\
 					'linux'])
 
 	# Write out results tab
 	for vendor in dfs.keys():
-		(visibility, analytics, protections, linux) = dfs[vendor].scoreVendor()
-		results = results.append({'vendor':vendor, 'visibility':visibility, 'analytics':analytics, 'protections':protections, 'linux':linux},ignore_index=True)
+		(visibility, analytics, protection, linux) = dfs[vendor].scoreVendor()
+		results = results.append({'vendor':vendor, 'visibility':visibility, 'analytics':analytics, 'protection':protection, 'linux':linux},ignore_index=True)
 	results.to_excel(writer, sheet_name='Results', index=False)
 
 	# Write out individual vendor tabs
