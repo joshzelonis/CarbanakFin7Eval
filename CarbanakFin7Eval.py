@@ -71,31 +71,49 @@ class Carbanak_FIN7Eval():
 				break
 		self.iterSteps()
 
+	# iterate protection steps and calculate percentage blocked
+	def scoreProtections(self):
+		try:
+			blocks = 0
+			tests = len(self._adv['Protections']['Protection_Tests'])
+		except KeyError:
+			return 'n/a'
+
+		for test in self._adv['Protections']['Protection_Tests']:
+			for step in test['Substeps']:
+				if step['Protection_Type'] == 'Blocked':
+					blocks += 1
+					break
+		return blocks/tests
+	
+
 
 	# generate vendor performance metrics
-def scoreVendor(obj, strict_mitre=False):
-	counts = obj.Detection.value_counts()
-	try:
-		misses = counts['None']
-	except KeyError:
-		misses = 0
-	try:
-		tactic = counts['Tactic']
-	except KeyError:
-		tactic = 0
-	try:
-		general = counts['General']
-	except KeyError:
-		general = 0
-	try:
-		na = counts['N/A']
-	except KeyError:
-		na = 0
-	substeps = len(obj.index) - na
-	visibility = substeps - misses
-	techniques = counts['Technique']
-	analytics = techniques / visibility if not strict_mitre else (techniques + tactic + general)/substeps
-	return (visibility/substeps, analytics)
+	def scoreVendor(self):
+		counts = self._df.Detection.value_counts()
+		try:
+			misses = counts['None']
+		except KeyError:
+			misses = 0
+		try:
+			tactic = counts['Tactic']
+		except KeyError:
+			tactic = 0
+		try:
+			general = counts['General']
+		except KeyError:
+			general = 0
+		try:
+			na = counts['N/A']
+		except KeyError:
+			na = 0
+		substeps = len(obj._df.index) - na
+		visibility = substeps - misses
+		techniques = counts['Technique']
+		analytics = techniques / visibility if not self._strict_mitre else (techniques + tactic + general)/substeps
+		protections = self.scoreProtections()
+		linux = 'yes' if self._adv['Linux_Participant'] else 'no'
+		return (visibility/substeps, analytics, protections, linux)
 
 
 def parse_args():
@@ -123,22 +141,24 @@ if __name__ == '__main__':
 	for infile in sorted(glob.glob(os.path.join('data', '*json'))):
 		obj = Carbanak_FIN7Eval(infile, args.strict_mitre)
 		obj.selectAdversary('carbanak_fin7')
-		dfs.update({obj._vendor: obj._df})
+		dfs.update({obj._vendor: obj})
 
 	writer = pd.ExcelWriter(fname, engine='xlsxwriter')
 	results = pd.DataFrame(columns=['vendor', 	\
                             		'visibility',	\
-                            		'analytics'])
+                            		'analytics',	\
+					'protections',	\
+					'linux'])
 
 	# Write out results tab
 	for vendor in dfs.keys():
-		(visibility, analytics) = scoreVendor(dfs[vendor], strict_mitre=args.strict_mitre)
-		results = results.append({'vendor':vendor, 'visibility':visibility, 'analytics':analytics},ignore_index=True)
+		(visibility, analytics, protections, linux) = dfs[vendor].scoreVendor()
+		results = results.append({'vendor':vendor, 'visibility':visibility, 'analytics':analytics, 'protections':protections, 'linux':linux},ignore_index=True)
 	results.to_excel(writer, sheet_name='Results', index=False)
 
 	# Write out individual vendor tabs
 	for vendor in dfs.keys():
-		dfs[vendor].to_excel(writer, sheet_name=vendor, index=False, columns=['Substep', 'Criteria', 'Tactic', 'TechniqueId', 'TechniqueName', 'SubtechniqueId', 'SubtechniqueName', 'Detection', 'Modifiers', 'Indicator', 'IndicatorName'])
+		dfs[vendor]._df.to_excel(writer, sheet_name=vendor, index=False, columns=['Substep', 'Criteria', 'Tactic', 'TechniqueId', 'TechniqueName', 'SubtechniqueId', 'SubtechniqueName', 'Detection', 'Modifiers', 'Indicator', 'IndicatorName'])
 	writer.save()
 
 	print('%s has been written.' % fname)
