@@ -1,5 +1,5 @@
 # CarbanakFin7Eval
-This project is focused on performing and facilitating analysis of the round 3 results from MITRE's Enterprise ATT&CK Evaluation. This year, I find myself in a different situation than in years past, where now I'm working for one of the vendors who participated in this evaluation. Given this complexity, I've added a --strict-mitre flag to override any of the analysis I describe below, if you just want to use their numbers. I think the changes I discuss below are important, and there's a multi-year history of my evaluating vendors using these methods, but the purpose of this project is to allow you to do your own analysis.
+This project is focused on performing and facilitating analysis of the round 3 results from MITRE's Enterprise ATT&CK Evaluation. This year, I find myself in a different situation than in years past, where now I'm working for one of the vendors who participated in this evaluation. Given this complexity, I've added a --strict-mitre flag to override any of the analysis I describe below, if you just want to use their numbers. I think the changes I discuss below are important, and there's a multi-year history of my evaluating vendors using these methods, but the purpose of this project is to allow you to do your own analysis. For a detailed discussion on what you should be thinking about when analyzing these results, I recommend you check out my blog on the subject https://medium.com/the-recovering-analyst/dont-let-vendor-exuberance-distract-from-the-value-of-the-mitre-att-ck-evaluation-b57a1ccab2a4.
 
 The output of the CarbanakFin7Eval.py script will output an XLSX workbook that will allow you to parse and play with vendor scores based on the analysis I've performed for the past 3 years. This analysis differs from MITRE's published metrics in three important ways:
 1) I exclude any detection that is either "delayed" or due to a "configuration change." The reason for this is because the delay was significant enough for MITRE to highlight it, and I don't believe customers are going to benefit from the same "configuration changes" that are being performed in a test environment.
@@ -26,7 +26,7 @@ A: I'm trying to identify what a majority of companies would be looking at when 
 
 Q: Is there a more in depth analysis of this data anywhere?
 
-A: I recommend you check out my blog (https://medium.com/the-recovering-analyst) as I'll be publishing more details when I'm done coding. Sadly, there's only one of me, but that's probably for the better. :)
+A: I recommend you check out my blog on the subject of analyzing this years' results... https://medium.com/the-recovering-analyst/dont-let-vendor-exuberance-distract-from-the-value-of-the-mitre-att-ck-evaluation-b57a1ccab2a4.
 
 
 ## Thanks
